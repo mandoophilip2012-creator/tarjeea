@@ -6,7 +6,7 @@
 <title>ترجيعة – منصة الشحن بالحمولة المشتركة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f4f5f6;--card:#fff;--ink:#1b2430;--mute:#66707c;--line:#dde1e5;--road:#1b2430;--sign:#f2b705;--ok:#1f8a70;--warn:#c2410c;--cell:#e6e9ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#f4f5f6;--card:#fff;--ink:#1b2430;--mute:#66707c;--line:#dde1e5;--road:#1b2430;--sign:#f2b705;--ok:#1f8a70;--warn:#c2410c;--cell:#e6e9ec}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,Tahoma,"Segoe UI",sans-serif;line-height:1.6;font-size:15px}
 .wrap{max-width:640px;margin:0 auto;padding:0 14px 90px}
@@ -32,24 +32,24 @@ input::placeholder{color:#7a8794}
 .btn.sign{background:linear-gradient(135deg,#f2b705,#ffcf3d)!important;color:#1b2430!important;font-weight:800;box-shadow:0 6px 16px rgba(242,183,5,.35)}
 .btn.full{width:100%;margin-top:14px}
 .btn:disabled{opacity:.45}
-:focus-visible{outline:3px solid var(--sign);outline-offset:2px}
 .tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;background:#e6e9ec;font-weight:600}
 .tag.ok{background:var(--ok);color:#fff}.tag.ret{background:var(--sign);color:#1b2430}
 .truck{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;margin:10px 0 4px;padding:4px;border:2px solid var(--road);border-radius:6px 6px 6px 22px}
 .truck i{height:14px;background:#e6e9ec;border-radius:2px}
-.truck i.f{background:var(--ok)}.truck i.m{background:var(--sign)}
+.truck i.f{background:var(--ok)}
 .price{font-weight:800;font-size:18px}
 .save{color:var(--ok);font-weight:600;font-size:13px}
-.steps{display:flex;margin:12px 0 4px}
-.steps div{flex:1;text-align:center;font-size:11px;color:var(--mute);position:relative}
-.steps div:before{content:"";display:block;width:14px;height:14px;border-radius:50%;background:#e6e9ec;margin:0 auto 3px}
-.steps div.d{color:var(--ink);font-weight:600}.steps div.d:before{background:var(--ok)}
 .pin{font-size:24px;font-weight:800;letter-spacing:6px;text-align:center;background:var(--bg);border:2px dashed var(--sign);border-radius:10px;padding:6px;margin:8px 0}
 .bid{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
 .empty{text-align:center;color:#3d4a59;padding:26px 10px}
-#toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--road);color:#fff;padding:10px 18px;border-radius:24px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--road);color:#fff;padding:10px 18px;border-radius:24px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
 #toast.show{opacity:1}
 .note{background:#e6e9ec;border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px}
+.paybox{background:#fff7d6;border:2px solid #f2b705;border-radius:12px;padding:12px;margin-top:10px;font-size:14px}
+.paybox b{font-size:18px;letter-spacing:1px}
+.blocked{background:#fff1f1;border:2px solid #c2410c;border-radius:20px;padding:16px;margin-bottom:12px;text-align:center}
+.blocked h3{color:#c2410c!important;margin:0 0 6px}
+.blocked p{color:#1b2430;font-size:14px;margin:4px 0}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
@@ -80,15 +80,27 @@ header{background:linear-gradient(135deg,#0f2233 0%,#1b3a56 55%,#2a5a82 100%)!im
 <script>
 const SB_URL="https://empsphgkxtxjjvevxtay.supabase.co",SB_KEY="sb_publishable_uu5rRwik-GGOj1YYn0VhHQ_BR9TJK-c";
 const sb=supabase.createClient(SB_URL,SB_KEY);
+const COMMISSION=0.10;
+const PAY_NUMBER="01210932190";
+const PAY_METHOD="أورانج كاش / انستا باي";
 const C={"القاهرة":[30.04,31.24],"الإسكندرية":[31.2,29.92],"الغردقة":[27.26,33.81],"السويس":[29.97,32.55],"بورسعيد":[31.26,32.3],"المنصورة":[31.04,31.38],"أسيوط":[27.18,31.18],"الأقصر":[25.69,32.64],"أسوان":[24.09,32.9],"شرم الشيخ":[27.91,34.33]};
 const CITIES=Object.keys(C),DATES=["اليوم","غدًا","بعد يومين","خلال أسبوع"],SL={open:"مفتوحة للعروض",booked:"تم الحجز",loading:"جاري التحميل",transit:"في الطريق",delivered:"تم التسليم"};
 const km=(a,b)=>{const r=x=>x*Math.PI/180,[p,q]=C[a],[u,v]=C[b],h=Math.sin(r(u-p)/2)**2+Math.cos(r(p))*Math.cos(r(u))*Math.sin(r(v-q)/2)**2;return Math.round(12742*Math.asin(Math.sqrt(h))*1.25)};
 const base=(a,b)=>Math.max(60,Math.round(km(a,b)*.9/10)*10),cur=t=>Math.round(t.base_ppm*(1-.25*t.used_m3/t.capacity_m3)),money=n=>Math.round(n).toLocaleString("ar-EG")+" ج.م";
+const commOf=total=>Math.round(total*COMMISSION),netOf=total=>Math.round(total*(1-COMMISSION));
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const L=(a,b)=>`${esc(a)} ← ${esc(b)}`,$=i=>document.getElementById(i).value;
 const opts=(a,sel)=>a.map(x=>`<option${x===sel?" selected":""}>${x}</option>`).join("");
 const toast=m=>{const t=document.getElementById("toast");t.textContent=m;t.className="show";clearTimeout(toast.h);toast.h=setTimeout(()=>t.className="",3200)};
 let uid=null,me=null,tab=null,mode="in",data={trips:[],ships:[],names:{},pend:[]},busy=false;
+function isBlocked(){ if(!me) return false; if(me.is_blocked) return true; try{ if(localStorage.getItem('blocked-'+uid)==='1') return true; }catch(e){} return false; }
+function unpaidAmount(){ try{ return +(localStorage.getItem('unpaid-'+uid)||0); }catch(e){ return 0; } }
+function blockedView(){
+ const amt=unpaidAmount();
+ return `<div class="blocked"><h3>⛔ تم إيقاف حسابك مؤقتاً</h3><p><b>السبب: لم ترسل العمولة</b></p>${amt>0?`<p>عليك عمولة: <b>${money(amt)}</b></p>`:`<p>عليك عمولة مستحقة لم يتم إرسالها</p>`}<p>ابعت العمولة على <b>${PAY_NUMBER}</b> - ${PAY_METHOD}</p><p>وبعدها ابعت سكرين شوت على الواتساب على نفس الرقم عشان نفك الإيقاف</p><button class="btn sign full" onclick="requestUnblock()">بعت العمولة - اطلب فك الإيقاف</button><p class="mute" style="margin-top:8px">الخدمات المتوقفة: نشر رحلة جديدة - تقديم عروض - مشاهدة طلبات العملاء</p></div>`;
+}
+function requestUnblock(){ toast("تم إرسال طلب فك الإيقاف. هنراجع التحويل ونفك حسابك."); }
+function markUnpaid(amount){ try{ localStorage.setItem('unpaid-'+uid, String(amount)); localStorage.setItem('blocked-'+uid,'1'); }catch(e){} render(); }
 const ok=async(p,msg)=>{const r=await p;if(r.error){toast(r.error.message);return false}if(msg)toast(msg);return true};
 sb.auth.onAuthStateChange((_e,ses)=>{uid=ses?.user?.id||null;setTimeout(boot,0)});
 async function boot(){if(!uid){me=null;return render()}
@@ -120,17 +132,20 @@ async function newShip(){if($("f")==$("t"))return toast("اختر مدينتين
  if(await ok(sb.from("shipments").insert({customer_id:uid,from_city:$("f"),to_city:$("t"),cargo:$("c")||"بضاعة عامة",weight_t:w,volume_m3:v}),"تم نشر الشحنة")){tab="mine";await load();render()}}
 async function book(sid,tid){if(await ok(sb.rpc("book_trip",{p_shipment:sid,p_trip:tid}),"تم الحجز")){await load();render()}}
 async function accept(bid){if(await ok(sb.rpc("accept_bid",{p_bid:bid}),"تم قبول العرض")){await load();render()}}
-async function bid(sid){const v=+$("b"+sid);if(!v||v<50)return toast("اكتب سعرًا صحيحًا");if(await ok(sb.from("bids").insert({shipment_id:sid,carrier_id:uid,price:v}),"تم إرسال عرضك")){await load();render()}}
-async function postTrip(){if($("tf")==$("tt"))return toast("اختر مدينتين مختلفتين");const cap=+$("tc");if(!cap)return toast("اكتب السعة");const ret=$("tr")=="1";
+async function bid(sid){ if(isBlocked()){ render(); return toast("حسابك موقوف - لم ترسل العمولة"); } const v=+$("b"+sid);if(!v||v<50)return toast("اكتب سعرًا صحيحًا");if(await ok(sb.from("bids").insert({shipment_id:sid,carrier_id:uid,price:v}),"تم إرسال عرضك")){await load();render()}}
+async function postTrip(){ if(isBlocked()){ render(); return toast("حسابك موقوف - لم ترسل العمولة"); } if($("tf")==$("tt"))return toast("اختر مدينتين مختلفتين");const cap=+$("tc");if(!cap)return toast("اكتب السعة");const ret=$("tr")=="1";
  if(await ok(sb.from("trips").insert({carrier_id:uid,from_city:$("tf"),to_city:$("tt"),depart_label:$("td"),capacity_m3:cap,base_ppm:Math.round(base($("tf"),$("tt"))*(ret?.7:1)),is_return:ret}),"تم نشر الرحلة")){tab="my";await load();render()}}
 async function verify(id){if(await ok(sb.rpc("verify_carrier",{p_id:id}),"تم توثيق الناقل")){await load();render()}}
 function meter(t){let h='<div class="truck" aria-hidden="true">';for(let i=0;i<20;i++)h+=`<i class="${i<Math.round(t.used_m3/t.capacity_m3*20)?"f":""}"></i>`;return h+"</div>"}
+function payBox(total){return `<div class="paybox">💰 الدفع كاش عند الاستلام<br>العميل يدفع <b>${money(total)}</b> للسواق كاش<br>عمولة ترجيعة (10%): <b>${money(commOf(total))}</b><br>الصافي للسواق: <b>${money(netOf(total))}</b><br>ابعت العمولة على <b>${PAY_NUMBER}</b> - ${PAY_METHOD}<br><span class="mute">وابعت سكرين شوت على الواتساب</span></div>`}
 function tripCard(t,s){const free=t.capacity_m3-t.used_m3,full=base(t.from_city,t.to_city),now=cur(t),pct=Math.round((1-now/full)*100);
+const total=s?Math.round(now*s.volume_m3):0;
 return`<div class="card"><div class="row"><h3>${L(t.from_city,t.to_city)}</h3>${t.is_return?'<span class="tag ret">ترجيعة</span>':'<span class="tag">رحلة عادية</span>'}</div>
 <div class="mute">${esc(cn(t.carrier_id))} · ${esc(t.depart_label||"")} · ${km(t.from_city,t.to_city)} كم</div>${meter(t)}
 <div class="row mute"><span>متبقي ${free} م³ من ${t.capacity_m3} م³</span><span>كل ما العربية تمتلي السعر ينزل</span></div>
 <div class="row" style="margin-top:8px"><div><span class="price">${money(now)}</span> <span class="mute">/م³</span><div class="save">أرخص ${pct}% من المعتاد (${money(full)})</div></div>
-${s?`<button class="btn sign" onclick="book('${s.id}','${t.id}')">احجز ${s.volume_m3} م³ بـ ${money(now*s.volume_m3)}</button>`:""}</div></div>`}
+${s?`<button class="btn sign" onclick="book('${s.id}','${t.id}')">احجز ${s.volume_m3} م³ بـ ${money(total)}</button>`:""}</div>
+${s?`<div class="mute" style="margin-top:8px">الدفع كاش عند الاستلام - عمولة ترجيعة 10% = ${money(commOf(total))} - الصافي ليك ${money(netOf(total))}</div>`:""}</div>`}
 async function payFor(sid, amount){
   try{
     toast("بيجهز الدفع...");
@@ -146,7 +161,7 @@ async function payFor(sid, amount){
 }
 function shipCard(s,k){const bids=s.bids||[],mine=s.customer_id==uid;
 let h=`<div class="card"><div class="row"><h3>${L(s.from_city,s.to_city)}</h3><span class="tag ${s.status=="delivered"?"ok":""}">${SL[s.status]}</span></div><div class="mute">${esc(s.cargo)} · ${s.weight_t} طن · ${s.volume_m3} م³ · ${km(s.from_city,s.to_city)} كم</div>`;
-if(s.status!="open")return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div><div class="note" style="margin-top:8px">الدفع محجوز عند ترجيعة لحد التسليم.</div><div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div></div>`;
+if(s.status!="open")return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div><div class="note" style="margin-top:8px">الدفع كاش عند الاستلام.</div>${payBox(s.price||0)}<div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div></div>`;
 if(k){const my=bids.find(b=>b.carrier_id==uid),sug=Math.round(s.volume_m3*base(s.from_city,s.to_city)*.9),mt=data.trips.filter(t=>t.carrier_id==uid&&t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
 return h+(my?`<div class="save" style="margin-top:8px">قدّمت عرض بـ ${money(my.price)}</div>`:`<label for="b${s.id}">عرضك (المقترح ${money(sug)})</label><div class="row"><input id="b${s.id}" type="number" inputmode="numeric" value="${sug}" style="flex:1"><button class="btn sign" onclick="bid('${s.id}')">قدّم عرض</button></div>`)+(mt.length?`<button class="btn full" onclick="book('${s.id}','${mt[0].id}')">ضمّها لرحلتك بـ ${money(cur(mt[0])*s.volume_m3)}</button>`:"")+"</div>"}
 if(!mine)return h+"</div>";
@@ -162,6 +177,13 @@ if(!uid){A.innerHTML=authView();return}
 R.innerHTML=`<button class="on" onclick="logout()">${me?esc(me.name):"حسابي"} · خروج</button>`;
 if(!me){A.innerHTML=onboard();return}
 if(me.role=="carrier"&&!me.verified){A.innerHTML=`<div class="card empty">طلبك قيد المراجعة. هنفعّل حسابك بعد التواصل معاك.</div>`;return}
+if(me.role=="carrier" && isBlocked()){
+  const TT2=[["my","رحلاتي وشحناتي"]];
+  tab="my";
+  T.innerHTML=`<button class="on">رحلاتي وشحناتي</button>`;
+  A.innerHTML=blockedView()+`<div class="card"><h3>شحنات عليك</h3><div class="mute">مش هتقدر تنشر رحلة جديدة لحد ما تبعت العمولة</div></div>`;
+  return;
+}
 const TT=me.role=="customer"?[["new","اطلب شحنة"],["mine","شحناتي"],["trips","الترجيعات"]]:me.role=="carrier"?[["post","انشر رحلة"],["req","طلبات العملاء"],["my","رحلاتي وشحناتي"]]:[["rev","توثيق الناقلين"],["trips","الرحلات"]];
 if(!TT.some(x=>x[0]==tab))tab=TT[0][0];
 T.innerHTML=TT.map(([k,t])=>`<button class="${tab==k?"on":""}" onclick="tab='${k}';render()">${t}</button>`).join("")+`<button onclick="refresh()">تحديث</button>`;

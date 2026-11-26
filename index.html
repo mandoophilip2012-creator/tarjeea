@@ -1,10 +1,29 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
+<html lang="ar" dir="rtl"><style>* { -webkit-text-size-adjust: 109.00000000000001% !important; }</style><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ترجيعة – منصة الشحن بالحمولة المشتركة</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&amp;display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f4f5f6;--card:#fff;--ink:#1b2430;--mute:#66707c;--line:#dde1e5;--road:#1b2430;--sign:#f2b705;--ok:#1f8a70;--warn:#c2410c;--cell:#e6e9ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161d;--card:#1a222c;--ink:#eef1f4;--mute:#9aa5b1;--line:#2b3542;--road:#0b0f14;--cell:#2b3542;--ok:#3fbf9f;--warn:#f08a5d}}
@@ -105,6 +124,7 @@ return`<div class="card"><div class="row"><h3>${L(t.from_city,t.to_city)}</h3>${
 <div class="row mute"><span>متبقي ${free} م³ من ${t.capacity_m3} م³</span><span>كل ما العربية تمتلي السعر ينزل</span></div>
 <div class="row" style="margin-top:8px"><div><span class="price">${money(now)}</span> <span class="mute">/م³</span><div class="save">أرخص ${pct}% من المعتاد (${money(full)})</div></div>
 ${s?`<button class="btn sign" onclick="book('${s.id}','${t.id}')">احجز ${s.volume_m3} م³ بـ ${money(now*s.volume_m3)}</button>`:""}</div></div>`}
+
 async function payFor(sid, amount){
   try{
     toast("بيجهز الدفع...");
@@ -112,13 +132,15 @@ async function payFor(sid, amount){
     if(error) throw error;
     const pin = String(Math.floor(1000 + Math.random()*9000));
     localStorage.setItem('pin-'+sid, pin);
-    document.getElementById('pin-'+sid).innerHTML = 'كود التسليم بتاعك: <b style="font-size:20px">'+pin+'</b> - اديه للسواق لما يستلم الشحنة.';
+    document.getElementById('pin-'+sid).innerHTML = 'كود التسليم بتاعك: <b style="font-size:20px">'+pin+'</b> - اديه للسواق لما يستلم الشحنة. متبعتوش لحد غيره.';
     window.open('https://accept.paymob.com/unifiedcheckout/?publicKey='+encodeURIComponent(data.public_key)+'&clientSecret='+encodeURIComponent(data.client_secret), '_blank');
     toast("اتفتح الدفع - جرّب بكارت الاختبار 5123456789012346");
   }catch(e){ toast("مشكلة في الدفع: "+(e.message||e)); }
-}function shipCard(s,k){const bids=s.bids||[],mine=s.customer_id==uid;
+}
+
+function shipCard(s,k){const bids=s.bids||[],mine=s.customer_id==uid;
 let h=`<div class="card"><div class="row"><h3>${L(s.from_city,s.to_city)}</h3><span class="tag ${s.status=="delivered"?"ok":""}">${SL[s.status]}</span></div><div class="mute">${esc(s.cargo)} · ${s.weight_t} طن · ${s.volume_m3} م³ · ${km(s.from_city,s.to_city)} كم</div>`;
-الدفع محجوز عند ترجيعة لحد التسليم.</div><div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div>
+if(s.status!="open")return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div><div class="note" style="margin-top:8px">الدفع محجوز عند ترجيعة لحد التسليم.</div><div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div></div>`;
 if(k){const my=bids.find(b=>b.carrier_id==uid),sug=Math.round(s.volume_m3*base(s.from_city,s.to_city)*.9),mt=data.trips.filter(t=>t.carrier_id==uid&&t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
 return h+(my?`<div class="save" style="margin-top:8px">قدّمت عرض بـ ${money(my.price)}</div>`:`<label for="b${s.id}">عرضك (المقترح ${money(sug)})</label><div class="row"><input id="b${s.id}" type="number" inputmode="numeric" value="${sug}" style="flex:1"><button class="btn sign" onclick="bid('${s.id}')">قدّم عرض</button></div>`)+(mt.length?`<button class="btn full" onclick="book('${s.id}','${mt[0].id}')">ضمّها لرحلتك بـ ${money(cur(mt[0])*s.volume_m3)}</button>`:"")+"</div>"}
 if(!mine)return h+"</div>";
@@ -148,5 +170,5 @@ if(tab=="rev")h=data.pend.length?data.pend.map(p=>`<div class="card"><h3>${esc(p
 A.innerHTML=h}
 async function refresh(){if(me){await load();render();toast("تم التحديث")}}
 </script>
-</body>
-</html>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+</body></html>

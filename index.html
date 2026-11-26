@@ -50,6 +50,8 @@ input::placeholder{color:#7a8794}
 .blocked{background:#fff1f1;border:2px solid #c2410c;border-radius:20px;padding:16px;margin-bottom:12px;text-align:center}
 .blocked h3{color:#c2410c!important;margin:0 0 6px}
 .blocked p{color:#1b2430;font-size:14px;margin:4px 0}
+.contactbox{background:#eef7ff;border:2px solid #2a5a82;border-radius:12px;padding:12px;margin-top:10px;font-size:14px}
+.gpsbox{background:#eafaf0;border:2px solid #1f8a70;border-radius:12px;padding:12px;margin-top:10px;font-size:14px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
@@ -111,6 +113,47 @@ async function load(){
  data.trips=tres.data||[];data.ships=sres.data||[];data.names={};(nres.data||[]).forEach(c=>data.names[c.id]=c);
  if(me && me.role=="admin"){const pres2=await sb.from("profiles").select("*").eq("role","carrier").eq("verified",false);data.pend=pres2.data||[]}}
 const cn=id=>data.names[id]?.name||"ناقل";
+const phoneOf=id=>data.names[id]?.phone||"";
+function waLink(phone,msg){ let p=String(phone||"").replace(/\D/g,""); if(p.startsWith("0")) p="20"+p.slice(1); if(p.startsWith("20")){} else if(p.length==11) p="20"+p; return "https://wa.me/"+p+"?text="+encodeURIComponent(msg||""); }
+function contactBox(s){
+ const isCarrierView=(me && me.role=="carrier")||(me && me.role=="admin");
+ if(isCarrierView){
+   const custPhone=phoneOf(s.customer_id);
+   if(!custPhone) return `<div class="contactbox">📞 التواصل مع العميل<br><span class="mute">رقم العميل هيظهر هنا بعد الحجز - اطلب منه يتواصل معاك من التطبيق</span></div>`;
+   return `<div class="contactbox">📞 التواصل مع العميل<br><b>${esc(cn(s.customer_id))}</b> - ${esc(custPhone)}<div class="row" style="margin-top:8px"><a href="tel:${custPhone}" style="flex:1;text-decoration:none"><button class="btn" style="width:100%">📞 اتصل بالعميل</button></a><a href="${waLink(custPhone,"أهلا، أنا السواق بتاع شحنتك في ترجيعة - "+s.from_city+" إلى "+s.to_city)}" target="_blank" style="flex:1;text-decoration:none"><button class="btn sign" style="width:100%">💬 واتساب العميل</button></a></div></div>`;
+ } else {
+   const drvPhone=phoneOf(s.carrier_id);
+   if(!drvPhone) return `<div class="contactbox">📞 التواصل مع السواق<br><span class="mute">رقم السواق هيظهر هنا بعد الحجز</span></div>`;
+   return `<div class="contactbox">📞 التواصل مع السواق<br><b>${esc(cn(s.carrier_id))}</b> - ${esc(drvPhone)}<div class="row" style="margin-top:8px"><a href="tel:${drvPhone}" style="flex:1;text-decoration:none"><button class="btn" style="width:100%">📞 اتصل بالسواق</button></a><a href="${waLink(drvPhone,"أهلا، أنا عميل ترجيعة - شحنتي "+s.from_city+" إلى "+s.to_city)}" target="_blank" style="flex:1;text-decoration:none"><button class="btn sign" style="width:100%">💬 واتساب السواق</button></a></div></div>`;
+ }
+}
+function gpsBox(s){
+ const isCarrierView=(me && me.role=="carrier")||(me && me.role=="admin");
+ if(isCarrierView){
+   return `<div class="gpsbox">📍 تتبع GPS<br><span class="mute">دوس عشان تبعت موقعك الحي للعميل على واتساب، وهيشوف عربيتك ماشية فين لحظة بلحظة</span><button class="btn sign full" onclick="shareLocation('${s.id}')">📍 شارك موقعي الحي مع العميل</button></div>`;
+ } else {
+   return `<div class="gpsbox">🗺️ تتبع شحنتك<br><span class="mute">السواق هيبعتلك موقعه الحي على واتساب، وهتشوف العربية ماشية فين. لو لسه مبعتش، كلمه على واتساب واطلب منه يدوس «شارك موقعي الحي»</span><button class="btn full" onclick="askLocation('${s.id}')">📍 اطلب موقع السواق</button></div>`;
+ }
+}
+function shareLocation(sid){
+ const s=data.ships.find(x=>x.id===sid); if(!s) return;
+ const drvPhone=phoneOf(s.carrier_id); const custPhone=phoneOf(s.customer_id);
+ if(!navigator.geolocation){ toast("متصفحك مش بيدعم تحديد الموقع"); return; }
+ toast("بيجيب موقعك...");
+ navigator.geolocation.getCurrentPosition(pos=>{
+   const lat=pos.coords.latitude, lng=pos.coords.longitude;
+   const mapLink="https://www.google.com/maps?q="+lat+","+lng;
+   const msg="موقعي الحي في ترجيعة - شحنة "+s.from_city+" إلى "+s.to_city+" - شوف العربية هنا: "+mapLink+" - وافتح واتساب واعمل مشاركة موقع حي عشان تشوفني لحظة بلحظة";
+   if(custPhone){ window.open(waLink(custPhone,msg),"_blank"); } else { window.open(mapLink,"_blank"); }
+   toast("اتفتح واتساب - دوس إرسال عشان العميل يشوف موقعك");
+ },()=>{ toast("مش قادر أجيب موقعك - افتح الـ GPS وحاول تاني"); });
+}
+function askLocation(sid){
+ const s=data.ships.find(x=>x.id===sid); if(!s) return;
+ const drvPhone=phoneOf(s.carrier_id);
+ if(!drvPhone){ toast("رقم السواق مش متاح"); return; }
+ window.open(waLink(drvPhone,"أهلا، ممكن تبعتلي موقعك الحي في ترجيعة؟ دوس على «شارك موقعي الحي» في التطبيق"),"_blank");
+}
 async function auth(kind){
  const email=$("em").trim(),pw=$("pw");
  if(!email||pw.length<6)return toast("اكتب الإيميل وباسورد 6 أحرف على الأقل");
@@ -168,7 +211,7 @@ function shipCard(s,k){
  if(s.status!="open"){
    let payHtml = "";
    if(isCarrierView){ payHtml = payBox(s.price||0); } else { payHtml = customerPayBox(s.price||0); }
-   return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div>${payHtml}<div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div></div>`;
+   return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div>${payHtml}${contactBox(s)}${gpsBox(s)}<div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div></div>`;
  }
  if(k){const my=bids.find(b=>b.carrier_id==uid),sug=Math.round(s.volume_m3*base(s.from_city,s.to_city)*.9),mt=data.trips.filter(t=>t.carrier_id==uid&&t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
  return h+(my?`<div class="save" style="margin-top:8px">قدّمت عرض بـ ${money(my.price)}</div>`:`<label for="b${s.id}">عرضك (المقترح ${money(sug)})</label><div class="row"><input id="b${s.id}" type="number" inputmode="numeric" value="${sug}" style="flex:1"><button class="btn sign" onclick="bid('${s.id}')">قدّم عرض</button></div>`)+(mt.length?`<button class="btn full" onclick="book('${s.id}','${mt[0].id}')">ضمّها لرحلتك بـ ${money(cur(mt[0])*s.volume_m3)}</button>`:"")+"</div>"}

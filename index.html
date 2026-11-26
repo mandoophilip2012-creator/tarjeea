@@ -1,29 +1,10 @@
-<html lang="ar" dir="rtl"><style>* { -webkit-text-size-adjust: 109.00000000000001% !important; }</style><head><style>
-@font-face {
-  font-family: "Optimistic";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Optimistic Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
-}
-:where(html) {
-  font-family: "Optimistic", system-ui, sans-serif;
-}
-:where(code, pre, kbd, samp) {
-  font-family: "Optimistic Mono", ui-monospace, monospace;
-}
-</style>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ترجيعة – منصة الشحن بالحمولة المشتركة</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f4f5f6;--card:#fff;--ink:#1b2430;--mute:#66707c;--line:#dde1e5;--road:#1b2430;--sign:#f2b705;--ok:#1f8a70;--warn:#c2410c;--cell:#e6e9ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161d;--card:#1a222c;--ink:#eef1f4;--mute:#9aa5b1;--line:#2b3542;--road:#0b0f14;--cell:#2b3542;--ok:#3fbf9f;--warn:#f08a5d}}
@@ -46,7 +27,7 @@ header p{margin:0 0 12px;color:#b9c2cc;font-size:13px}
 .card h3{margin:0 0 4px;font-size:16px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .mute{color:var(--mute);font-size:13px}
-label{display:block;font-size:13px;color:var(--mute);margin:10px 0 3px}
+label{display:block;font-size:14px;font-weight:700;color:#1b2430;margin:10px 0 3px}
 select,input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg);color:var(--ink)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn{border:0;background:var(--road);color:#fff;padding:10px 16px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer}
@@ -73,7 +54,6 @@ select,input{width:100%;padding:10px;border:1px solid var(--line);border-radius:
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 .note{background:var(--cell);border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px}.pin{font-size:24px}</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-
 <style>
 body{background:linear-gradient(180deg,#0f2233 0%,#12314d 28%,#f4f5f6 28%)!important;background-attachment:fixed}
 .wrap{padding-top:0}
@@ -95,6 +75,14 @@ header{background:linear-gradient(135deg,#0f2233 0%,#1b3a56 55%,#2a5a82 100%)!im
 @keyframes drive{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
 .splash-dots{color:#f2b705;font-size:22px;letter-spacing:6px;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+</style>
+<style>
+label{color:#1b2430!important;font-weight:700!important;font-size:14px!important}
+.mute{color:#3d4a59!important}
+input,select{background:#fff!important;color:#1b2430!important;border:1.5px solid #cbd2da!important;font-weight:600}
+input::placeholder{color:#7a8794!important}
+.card h3{color:#0f2233!important}
+header p{color:#e8eef4!important}
 </style>
 </head>
 <body><div id="splash"><div class="splash-logo">🚛</div><div class="splash-title">ترجيعة<span>.</span></div><div class="splash-sub">كل عربية راجعة فاضية<br>هي شحنة رخيصة لعميل</div><div class="splash-road"><i></i></div><div class="splash-dots">● ● ●</div><div style="color:#fff;font-size:13px">جاري التحميل... اضغط للتخطي</div></div><script>const _sp=document.getElementById('splash');_sp.addEventListener('click',()=>_sp.classList.add('hide'));setTimeout(()=>{_sp?.classList.add('hide')},4000)</script>
@@ -126,7 +114,7 @@ async function load(){
  if(me.role=="admin"){const{data:p}=await sb.from("profiles").select("*").eq("role","carrier").eq("verified",false);data.pend=p||[]}}
 const cn=id=>data.names[id]?.name||"ناقل";
 async function auth(kind){const email=$("em").trim(),pw=$("pw");if(!email||pw.length<6)return toast("اكتب الإيميل وباسورد 6 أحرف على الأقل");
- if(kind=="up"){const{data:d,error}=await sb.auth.signUp({email,password:pw});if(error)return toast(error.message);if(!d.session)toast("تم إنشاء الحساب. افتح الإيميل لتأكيده ثم سجّل الدخول")}
+ if(kind=="up"){const{data:d,[STRIPPED] sb.auth.signUp({email,password:pw});if(error)return toast(error.message);if(!d.session)toast("تم إنشاء الحساب. افتح الإيميل لتأكيده ثم سجّل الدخول")}
  else{const{error}=await sb.auth.signInWithPassword({email,password:pw});if(error)toast(error.message==="Invalid login credentials"?"الإيميل أو الباسورد غير صحيح":error.message)}}
 const logout=()=>sb.auth.signOut();
 async function mkProfile(role){const name=$("n").trim(),phone=$("ph").trim();if(!name||phone.length<8)return toast("اكتب الاسم ورقم هاتف صحيح");
@@ -147,7 +135,6 @@ return`<div class="card"><div class="row"><h3>${L(t.from_city,t.to_city)}</h3>${
 <div class="row mute"><span>متبقي ${free} م³ من ${t.capacity_m3} م³</span><span>كل ما العربية تمتلي السعر ينزل</span></div>
 <div class="row" style="margin-top:8px"><div><span class="price">${money(now)}</span> <span class="mute">/م³</span><div class="save">أرخص ${pct}% من المعتاد (${money(full)})</div></div>
 ${s?`<button class="btn sign" onclick="book('${s.id}','${t.id}')">احجز ${s.volume_m3} م³ بـ ${money(now*s.volume_m3)}</button>`:""}</div></div>`}
-
 async function payFor(sid, amount){
   try{
     toast("بيجهز الدفع...");
@@ -160,7 +147,6 @@ async function payFor(sid, amount){
     toast("اتفتح الدفع - جرّب بكارت الاختبار 5123456789012346");
   }catch(e){ toast("مشكلة في الدفع: "+(e.message||e)); }
 }
-
 function shipCard(s,k){const bids=s.bids||[],mine=s.customer_id==uid;
 let h=`<div class="card"><div class="row"><h3>${L(s.from_city,s.to_city)}</h3><span class="tag ${s.status=="delivered"?"ok":""}">${SL[s.status]}</span></div><div class="mute">${esc(s.cargo)} · ${s.weight_t} طن · ${s.volume_m3} م³ · ${km(s.from_city,s.to_city)} كم</div>`;
 if(s.status!="open")return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div><div class="note" style="margin-top:8px">الدفع محجوز عند ترجيعة لحد التسليم.</div><div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div></div>`;
@@ -193,5 +179,5 @@ if(tab=="rev")h=data.pend.length?data.pend.map(p=>`<div class="card"><h3>${esc(p
 A.innerHTML=h}
 async function refresh(){if(me){await load();render();toast("تم التحديث")}}
 </script>
-<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
-</body></html>
+</body>
+</html>

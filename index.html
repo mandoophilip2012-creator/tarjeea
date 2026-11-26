@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ترجيعة – منصة الشحن بالحمولة المشتركة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5f6;--card:#fff;--ink:#1b2430;--mute:#66707c;--line:#dde1e5;--road:#1b2430;--sign:#f2b705;--ok:#1f8a70;--warn:#c2410c;--cell:#e6e9ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161d;--card:#1a222c;--ink:#eef1f4;--mute:#9aa5b1;--line:#2b3542;--road:#0b0f14;--cell:#2b3542;--ok:#3fbf9f;--warn:#f08a5d}}
+:root[data-theme="dark"]{--bg:#11161d;--card:#1a222c;--ink:#eef1f4;--mute:#9aa5b1;--line:#2b3542;--road:#0b0f14;--cell:#2b3542;--ok:#3fbf9f;--warn:#f08a5d}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,Tahoma,"Segoe UI",sans-serif;line-height:1.6;font-size:15px}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px 90px}
+header{background:var(--road);color:#fff;padding:16px 14px 0;margin:0 -14px 14px}
+header h1{margin:0;font-size:26px;font-weight:800;letter-spacing:0}
+header h1 span{color:var(--sign)}
+header p{margin:0 0 12px;color:#b9c2cc;font-size:13px}
+.roles{display:flex;gap:6px}
+.roles button{flex:1;border:0;padding:10px;font:inherit;font-weight:600;background:#2a3544;color:#cfd6de;border-radius:10px 10px 0 0;cursor:pointer}
+.roles button.on{background:var(--bg);color:var(--ink)}
+.tabs{display:flex;gap:8px;margin:0 0 14px;overflow-x:auto}
+.tabs button{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:20px;font:inherit;cursor:pointer}
+.tabs button.on{background:var(--sign);border-color:var(--sign);color:#1b2430;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.card h3{margin:0 0 4px;font-size:16px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.mute{color:var(--mute);font-size:13px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 3px}
+select,input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg);color:var(--ink)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:0;background:var(--road);color:#fff;padding:10px 16px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer}
+.btn.sign{background:var(--sign);color:#1b2430}
+.btn.full{width:100%;margin-top:14px}
+.btn:disabled{opacity:.45}
+:focus-visible{outline:3px solid var(--sign);outline-offset:2px}
+.tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;background:var(--cell);font-weight:600}
+.tag.ok{background:var(--ok);color:#fff}.tag.ret{background:var(--sign);color:#1b2430}
+.truck{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;margin:10px 0 4px;padding:4px;border:2px solid var(--road);border-radius:6px 6px 6px 22px}
+.truck i{height:14px;background:var(--cell);border-radius:2px}
+.truck i.f{background:var(--ok)}.truck i.m{background:var(--sign)}
+.price{font-weight:800;font-size:18px}
+.save{color:var(--ok);font-weight:600;font-size:13px}
+.steps{display:flex;margin:12px 0 4px}
+.steps div{flex:1;text-align:center;font-size:11px;color:var(--mute);position:relative}
+.steps div:before{content:"";display:block;width:14px;height:14px;border-radius:50%;background:var(--cell);margin:0 auto 3px}
+.steps div.d{color:var(--ink);font-weight:600}.steps div.d:before{background:var(--ok)}
+.pin{font-size:26px;font-weight:800;letter-spacing:6px;text-align:center;background:var(--bg);border:2px dashed var(--sign);border-radius:10px;padding:6px;margin:8px 0}
+.bid{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+.empty{text-align:center;color:var(--mute);padding:26px 10px}
+#toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--road);color:#fff;padding:10px 18px;border-radius:24px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+.note{background:var(--cell);border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px}.pin{font-size:24px}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+<header><h1>ترجيعة<span>.</span></h1><p>كل عربية راجعة فاضية هي شحنة رخيصة لعميل</p><div class="roles" id="roles"></div></header>
+<div class="tabs" id="tabs"></div>
+<main id="app"><div class="empty">جاري التحميل…</div></main>
+</div>
+<div id="toast" role="status"></div>
+<script>
+const SB_URL="https://empsphgkxtxjjvevxtay.supabase.co",SB_KEY="sb_publishable_uu5rRwik-GGOj1YYn0VhHQ_BR9TJK-c";
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const C={"القاهرة":[30.04,31.24],"الإسكندرية":[31.2,29.92],"الغردقة":[27.26,33.81],"السويس":[29.97,32.55],"بورسعيد":[31.26,32.3],"المنصورة":[31.04,31.38],"أسيوط":[27.18,31.18],"الأقصر":[25.69,32.64],"أسوان":[24.09,32.9],"شرم الشيخ":[27.91,34.33]};
+const CITIES=Object.keys(C),DATES=["اليوم","غدًا","بعد يومين","خلال أسبوع"],SL={open:"مفتوحة للعروض",booked:"تم الحجز",loading:"جاري التحميل",transit:"في الطريق",delivered:"تم التسليم"};
+const km=(a,b)=>{const r=x=>x*Math.PI/180,[p,q]=C[a],[u,v]=C[b],h=Math.sin(r(u-p)/2)**2+Math.cos(r(p))*Math.cos(r(u))*Math.sin(r(v-q)/2)**2;return Math.round(12742*Math.asin(Math.sqrt(h))*1.25)};
+const base=(a,b)=>Math.max(60,Math.round(km(a,b)*.9/10)*10),cur=t=>Math.round(t.base_ppm*(1-.25*t.used_m3/t.capacity_m3)),money=n=>Math.round(n).toLocaleString("ar-EG")+" ج.م";
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const L=(a,b)=>`${esc(a)} ← ${esc(b)}`,$=i=>document.getElementById(i).value;
+const opts=(a,sel)=>a.map(x=>`<option${x===sel?" selected":""}>${x}</option>`).join("");
+const toast=m=>{const t=document.getElementById("toast");t.textContent=m;t.className="show";clearTimeout(toast.h);toast.h=setTimeout(()=>t.className="",3200)};
+let uid=null,me=null,tab=null,mode="in",data={trips:[],ships:[],names:{},pend:[]},busy=false;
+const ok=async(p,msg)=>{const r=await p;if(r.error){toast(r.error.message);return false}if(msg)toast(msg);return true};
+sb.auth.onAuthStateChange((_e,ses)=>{uid=ses?.user?.id||null;setTimeout(boot,0)});
+async function boot(){if(!uid){me=null;return render()}
+ const{data:p}=await sb.from("profiles").select("*").eq("id",uid).maybeSingle();me=p;if(me)await load();render()}
+async function load(){
+ const[t,s,n]=await Promise.all([sb.from("trips").select("*").order("created_at",{ascending:false}),sb.from("shipments").select("*, bids(*)").order("created_at",{ascending:false}),sb.rpc("public_carriers")]);
+ data.trips=t.data||[];data.ships=s.data||[];data.names={};(n.data||[]).forEach(c=>data.names[c.id]=c);
+ if(me.role=="admin"){const{data:p}=await sb.from("profiles").select("*").eq("role","carrier").eq("verified",false);data.pend=p||[]}}
+const cn=id=>data.names[id]?.name||"ناقل";
+async function auth(kind){const email=$("em").trim(),pw=$("pw");if(!email||pw.length<6)return toast("اكتب الإيميل وباسورد 6 أحرف على الأقل");
+ if(kind=="up"){const{data:d,error}=await sb.auth.signUp({email,password:pw});if(error)return toast(error.message);if(!d.session)toast("تم إنشاء الحساب. افتح الإيميل لتأكيده ثم سجّل الدخول")}
+ else{const{error}=await sb.auth.signInWithPassword({email,password:pw});if(error)toast(error.message==="Invalid login credentials"?"الإيميل أو الباسورد غير صحيح":error.message)}}
+const logout=()=>sb.auth.signOut();
+async function mkProfile(role){const name=$("n").trim(),phone=$("ph").trim();if(!name||phone.length<8)return toast("اكتب الاسم ورقم هاتف صحيح");
+ const row={id:uid,role,name,phone};if(role=="carrier"){row.plate=$("pl").trim();row.capacity_m3=+$("cp");if(!row.plate)return toast("اكتب رقم اللوحة")}
+ if(await ok(sb.from("profiles").insert(row)))boot()}
+async function newShip(){if($("f")==$("t"))return toast("اختر مدينتين مختلفتين");const w=+$("w"),v=+$("v");if(!w||!v)return toast("اكتب الوزن والحجم");
+ if(await ok(sb.from("shipments").insert({customer_id:uid,from_city:$("f"),to_city:$("t"),cargo:$("c")||"بضاعة عامة",weight_t:w,volume_m3:v}),"تم نشر الشحنة")){tab="mine";await load();render()}}
+async function book(sid,tid){if(await ok(sb.rpc("book_trip",{p_shipment:sid,p_trip:tid}),"تم الحجز")){await load();render()}}
+async function accept(bid){if(await ok(sb.rpc("accept_bid",{p_bid:bid}),"تم قبول العرض")){await load();render()}}
+async function bid(sid){const v=+$("b"+sid);if(!v||v<50)return toast("اكتب سعرًا صحيحًا");if(await ok(sb.from("bids").insert({shipment_id:sid,carrier_id:uid,price:v}),"تم إرسال عرضك")){await load();render()}}
+async function postTrip(){if($("tf")==$("tt"))return toast("اختر مدينتين مختلفتين");const cap=+$("tc");if(!cap)return toast("اكتب السعة");const ret=$("tr")=="1";
+ if(await ok(sb.from("trips").insert({carrier_id:uid,from_city:$("tf"),to_city:$("tt"),depart_label:$("td"),capacity_m3:cap,base_ppm:Math.round(base($("tf"),$("tt"))*(ret?.7:1)),is_return:ret}),"تم نشر الرحلة")){tab="my";await load();render()}}
+async function verify(id){if(await ok(sb.rpc("verify_carrier",{p_id:id}),"تم توثيق الناقل")){await load();render()}}
+function meter(t){let h='<div class="truck" aria-hidden="true">';for(let i=0;i<20;i++)h+=`<i class="${i<Math.round(t.used_m3/t.capacity_m3*20)?"f":""}"></i>`;return h+"</div>"}
+function tripCard(t,s){const free=t.capacity_m3-t.used_m3,full=base(t.from_city,t.to_city),now=cur(t),pct=Math.round((1-now/full)*100);
+return`<div class="card"><div class="row"><h3>${L(t.from_city,t.to_city)}</h3>${t.is_return?'<span class="tag ret">ترجيعة</span>':'<span class="tag">رحلة عادية</span>'}</div>
+<div class="mute">${esc(cn(t.carrier_id))} · ${esc(t.depart_label||"")} · ${km(t.from_city,t.to_city)} كم</div>${meter(t)}
+<div class="row mute"><span>متبقي ${free} م³ من ${t.capacity_m3} م³</span><span>كل ما العربية تمتلي السعر ينزل</span></div>
+<div class="row" style="margin-top:8px"><div><span class="price">${money(now)}</span> <span class="mute">/م³</span><div class="save">أرخص ${pct}% من المعتاد (${money(full)})</div></div>
+${s?`<button class="btn sign" onclick="book('${s.id}','${t.id}')">احجز ${s.volume_m3} م³ بـ ${money(now*s.volume_m3)}</button>`:""}</div></div>`}
+function shipCard(s,k){const bids=s.bids||[],mine=s.customer_id==uid;
+let h=`<div class="card"><div class="row"><h3>${L(s.from_city,s.to_city)}</h3><span class="tag ${s.status=="delivered"?"ok":""}">${SL[s.status]}</span></div><div class="mute">${esc(s.cargo)} · ${s.weight_t} طن · ${s.volume_m3} م³ · ${km(s.from_city,s.to_city)} كم</div>`;
+if(s.status!="open")return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div><div class="note" style="margin-top:8px">الدفع وكود التسليم هيتفعّلوا في الخطوة الجاية.</div></div>`;
+if(k){const my=bids.find(b=>b.carrier_id==uid),sug=Math.round(s.volume_m3*base(s.from_city,s.to_city)*.9),mt=data.trips.filter(t=>t.carrier_id==uid&&t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
+return h+(my?`<div class="save" style="margin-top:8px">قدّمت عرض بـ ${money(my.price)}</div>`:`<label for="b${s.id}">عرضك (المقترح ${money(sug)})</label><div class="row"><input id="b${s.id}" type="number" inputmode="numeric" value="${sug}" style="flex:1"><button class="btn sign" onclick="bid('${s.id}')">قدّم عرض</button></div>`)+(mt.length?`<button class="btn full" onclick="book('${s.id}','${mt[0].id}')">ضمّها لرحلتك بـ ${money(cur(mt[0])*s.volume_m3)}</button>`:"")+"</div>"}
+if(!mine)return h+"</div>";
+const m=data.trips.filter(t=>t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
+return h+"</div>"+(m.length?`<div class="mute" style="margin:-4px 0 8px">ترجيعات ورحلات مناسبة لشحنتك:</div>`+m.map(t=>tripCard(t,s)).join(""):"")+(bids.length?`<div class="card"><b>عروض الناقلين</b>`+bids.slice().sort((a,b)=>a.price-b.price).map(b=>`<div class="bid row"><div>${esc(cn(b.carrier_id))}<div class="mute">تقييم ${data.names[b.carrier_id]?.rating??"-"}</div></div><div><span class="price">${money(b.price)}</span> <button class="btn sign" onclick="accept('${b.id}')">اقبل</button></div></div>`).join("")+"</div>":(m.length?"":`<div class="card empty">لا توجد ترجيعات على هذا الخط الآن. ستصلك عروض الناقلين هنا.</div>`))}
+function authView(){return`<div class="card"><h3>${mode=="in"?"تسجيل الدخول":"إنشاء حساب جديد"}</h3><label for="em">الإيميل</label><input id="em" type="email" autocomplete="email"><label for="pw">الباسورد</label><input id="pw" type="password" autocomplete="${mode=="in"?"current-password":"new-password"}">
+<button class="btn sign full" onclick="auth('${mode=="in"?"in":"up"}')">${mode=="in"?"دخول":"إنشاء الحساب"}</button><p class="mute" style="text-align:center"><a href="#" onclick="mode='${mode=="in"?"up":"in"}';render();return false">${mode=="in"?"معنديش حساب، أسجّل":"عندي حساب، أدخل"}</a></p></div>`}
+function onboard(){return`<div class="card"><h3>أهلًا بك في ترجيعة</h3><label for="n">الاسم</label><input id="n"><label for="ph">رقم الهاتف</label><input id="ph" inputmode="tel">
+<div class="row" style="margin-top:14px"><button class="btn sign" style="flex:1" onclick="mkProfile('customer')">سجّل كعميل</button><button class="btn" style="flex:1" onclick="document.getElementById('kx').hidden=false">سجّل كناقل</button></div>
+<div id="kx" hidden><div class="g2"><div><label for="pl">رقم اللوحة</label><input id="pl"></div><div><label for="cp">السعة (م³)</label><input id="cp" type="number" value="40"></div></div><button class="btn sign full" onclick="mkProfile('carrier')">أرسل للتوثيق</button><p class="mute">هنتصل بيك على رقمك ونراجع بياناتك قبل ما تقدر تنشر رحلات.</p></div></div>`}
+function render(){const A=document.getElementById("app"),T=document.getElementById("tabs"),R=document.getElementById("roles");T.innerHTML="";R.innerHTML="";
+if(!uid){A.innerHTML=authView();return}
+R.innerHTML=`<button class="on" onclick="logout()">${me?esc(me.name):"حسابي"} · خروج</button>`;
+if(!me){A.innerHTML=onboard();return}
+if(me.role=="carrier"&&!me.verified){A.innerHTML=`<div class="card empty">طلبك قيد المراجعة. هنفعّل حسابك بعد التواصل معاك.</div>`;return}
+const TT=me.role=="customer"?[["new","اطلب شحنة"],["mine","شحناتي"],["trips","الترجيعات"]]:me.role=="carrier"?[["post","انشر رحلة"],["req","طلبات العملاء"],["my","رحلاتي وشحناتي"]]:[["rev","توثيق الناقلين"],["trips","الرحلات"]];
+if(!TT.some(x=>x[0]==tab))tab=TT[0][0];
+T.innerHTML=TT.map(([k,t])=>`<button class="${tab==k?"on":""}" onclick="tab='${k}';render()">${t}</button>`).join("")+`<button onclick="refresh()">تحديث</button>`;
+let h="";
+if(tab=="new")h=`<div class="card"><h3>إيه اللي عايز تشحنه؟</h3><div class="g2"><div><label for="f">من</label><select id="f">${opts(CITIES,"القاهرة")}</select></div><div><label for="t">إلى</label><select id="t">${opts(CITIES,"الغردقة")}</select></div></div><label for="c">نوع البضاعة</label><input id="c" placeholder="مثال: كراتين أجهزة كهربائية"><div class="g2"><div><label for="w">الوزن (طن)</label><input id="w" type="number" inputmode="decimal" value="2"></div><div><label for="v">الحجم (م³)</label><input id="v" type="number" inputmode="decimal" value="8"></div></div><button class="btn sign full" onclick="newShip()">انشر الشحنة واعرف الأسعار</button></div>`;
+if(tab=="mine"){const a=data.ships.filter(s=>s.customer_id==uid);h=a.length?a.map(s=>shipCard(s,0)).join(""):`<div class="empty">لسه ما نشرتش شحنات. ابدأ من «اطلب شحنة».</div>`}
+if(tab=="trips")h=data.trips.length?data.trips.map(t=>tripCard(t,null)).join(""):`<div class="empty">مفيش رحلات منشورة حاليًا.</div>`;
+if(tab=="post")h=`<div class="card"><h3>نشر رحلة</h3><div class="g2"><div><label for="tf">من</label><select id="tf">${opts(CITIES,"الغردقة")}</select></div><div><label for="tt">إلى</label><select id="tt">${opts(CITIES,"القاهرة")}</select></div></div><div class="g2"><div><label for="td">موعد التحرك</label><select id="td">${opts(DATES)}</select></div><div><label for="tc">سعة العربية (م³)</label><input id="tc" type="number" value="${me.capacity_m3||40}"></div></div><label for="tr">نوع الرحلة</label><select id="tr"><option value="1">ترجيعة (راجع فاضي، سعر أقل)</option><option value="0">رحلة عادية</option></select><button class="btn sign full" onclick="postTrip()">انشر الرحلة</button></div>`;
+if(tab=="req"){const a=data.ships.filter(s=>s.status=="open");h=a.length?a.map(s=>shipCard(s,1)).join(""):`<div class="empty">مفيش طلبات مفتوحة دلوقتي.</div>`}
+if(tab=="my"){const mt=data.trips.filter(t=>t.carrier_id==uid),ms=data.ships.filter(s=>s.carrier_id==uid);h=(mt.map(t=>tripCard(t,null)).join(""))+(ms.length?`<h3>شحنات عليك</h3>`+ms.map(s=>shipCard(s,1)).join(""):"")||`<div class="empty">انشر أول رحلة أو قدّم عرض على طلب عميل.</div>`}
+if(tab=="rev")h=data.pend.length?data.pend.map(p=>`<div class="card"><h3>${esc(p.name)}</h3><div class="mute">لوحة ${esc(p.plate||"")} · سعة ${p.capacity_m3||""} م³ · ${esc(p.phone)}</div><button class="btn sign full" onclick="verify('${p.id}')">وثّق الناقل</button></div>`).join(""):`<div class="empty">لا توجد طلبات توثيق.</div>`;
+A.innerHTML=h}
+async function refresh(){if(me){await load();render();toast("تم التحديث")}}
+</script>
+</body>
+</html>

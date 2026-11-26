@@ -75,27 +75,31 @@ select,input{width:100%;padding:10px;border:1px solid var(--line);border-radius:
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 
 <style>
-#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0f2233 0%,#1b3a56 55%,#f2b705 130%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .6s, visibility .6s}
+body{background:linear-gradient(180deg,#0f2233 0%,#12314d 28%,#f4f5f6 28%)!important;background-attachment:fixed}
+.wrap{padding-top:0}
+header{background:linear-gradient(135deg,#0f2233 0%,#1b3a56 55%,#2a5a82 100%)!important;border-radius:0 0 28px 28px;box-shadow:0 12px 30px rgba(0,0,0,.25);padding-bottom:18px!important}
+.card{background:rgba(255,255,255,.96)!important;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.7);box-shadow:0 10px 28px rgba(15,34,51,.12);border-radius:20px!important}
+.btn{border-radius:14px!important;box-shadow:0 6px 16px rgba(242,183,5,.35)}
+.btn.sign{background:linear-gradient(135deg,#f2b705,#ffcf3d)!important;color:#1b2430!important;font-weight:800}
+.tabs button.on{background:linear-gradient(135deg,#f2b705,#ffcf3d)!important}
+#splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 20%,#2a5a82 0%,#0f2233 55%,#071521 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .7s, visibility .7s}
 #splash.hide{opacity:0;visibility:hidden}
-.splash-logo{width:120px;height:120px;background:#fff;border-radius:32px;display:flex;align-items:center;justify-content:center;font-size:64px;box-shadow:0 20px 50px rgba(0,0,0,.35);animation:bounceIn 1s ease, floatY 2s ease-in-out 1s infinite}
-@keyframes bounceIn{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
-@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.splash-title{color:#fff;font-size:38px;font-weight:800;letter-spacing:1px}
+.splash-logo{width:140px;height:140px;background:linear-gradient(135deg,#fff,#ffe9a8);border-radius:38px;display:flex;align-items:center;justify-content:center;font-size:78px;box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 0 8px rgba(242,183,5,.25);animation:bounceIn 1s ease, floatY 2s ease-in-out 1s infinite}
+@keyframes bounceIn{0%{transform:scale(.3) rotate(-10deg);opacity:0}60%{transform:scale(1.15) rotate(3deg)}100%{transform:scale(1);opacity:1}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.splash-title{color:#fff;font-size:44px;font-weight:800}
 .splash-title span{color:#f2b705}
-.splash-sub{color:#cfe0ee;font-size:15px}
-.splash-road{width:220px;height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden}
-.splash-road i{display:block;height:100%;width:40%;background:#f2b705;border-radius:99px;animation:drive 1.2s ease-in-out infinite}
-@keyframes drive{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
-.card{animation:fadeUp .5s ease both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.btn{transition:transform .15s, box-shadow .15s}
-.btn:active{transform:scale(.97)}
-header{background:linear-gradient(135deg,#0f2233,#1b3a56)!important}
+.splash-sub{color:#cfe0ee;font-size:16px;text-align:center;padding:0 30px}
+.splash-road{width:260px;height:8px;background:rgba(255,255,255,.18);border-radius:99px;overflow:hidden}
+.splash-road i{display:block;height:100%;width:38%;background:linear-gradient(90deg,#f2b705,#ffcf3d);border-radius:99px;animation:drive 1.1s ease-in-out infinite}
+@keyframes drive{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
+.splash-dots{color:#f2b705;font-size:22px;letter-spacing:6px;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
 </style>
 </head>
-<body><div id="splash" class="hide"><div class="splash-logo">🚛</div><div class="splash-title">ترجيعة<span>.</span></div><div class="splash-sub">كل عربية راجعة فاضية هي شحنة رخيصة</div><div class="splash-road"><i></i></div><div style="color:#fff;font-size:13px">جاري التحميل...</div></div><script>setTimeout(()=>{document.getElementById('splash')?.classList.add('hide')},2200)</script>
+<body><div id="splash" class="hide"><div class="splash-logo">🚛</div><div class="splash-title">ترجيعة<span>.</span></div><div class="splash-sub">كل عربية راجعة فاضية<br>هي شحنة رخيصة لعميل</div><div class="splash-road"><i></i></div><div class="splash-dots">● ● ●</div><div style="color:#fff;font-size:13px">جاري التحميل... اضغط للتخطي</div></div><script>const _sp=document.getElementById('splash');_sp.addEventListener('click',()=>_sp.classList.add('hide'));setTimeout(()=>{_sp?.classList.add('hide')},4000)</script>
 <div class="wrap">
-<header><h1 style="display:flex;align-items:center;gap:10px"><span style="background:#f2b705;width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px">🚛</span> ترجيعة<span>.</span></h1><p>كل عربية راجعة فاضية هي شحنة رخيصة لعميل</p><div class="roles" id="roles"></div></header>
+<header><h1 style="display:flex;align-items:center;gap:10px"><span style="background:linear-gradient(135deg,#f2b705,#ffcf3d);width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 20px rgba(0,0,0,.3)">🚛</span> ترجيعة<span>.</span></h1><p>كل عربية راجعة فاضية هي شحنة رخيصة لعميل</p><div class="roles" id="roles"></div></header>
 <div class="tabs" id="tabs"></div>
 <main id="app"><div class="empty">جاري التحميل…</div></main>
 </div>

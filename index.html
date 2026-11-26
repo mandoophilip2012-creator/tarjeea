@@ -125,7 +125,11 @@ async function load(){
  if(me.role=="admin"){const{data:p}=await sb.from("profiles").select("*").eq("role","carrier").eq("verified",false);data.pend=p||[]}}
 const cn=id=>data.names[id]?.name||"ناقل";
 async function auth(kind){const email=$("em").trim(),pw=$("pw");if(!email||pw.length<6)return toast("اكتب الإيميل وباسورد 6 أحرف على الأقل");
- if(kind=="up"){const{data:d,[STRIPPED] sb.auth.signUp({email,password:pw});if(error)return toast(error.message);if(!d.session)toast("تم إنشاء الحساب. افتح الإيميل لتأكيده ثم سجّل الدخول")}
+if(kind=="up"){
+let upRes = await sb.auth.signUp({email:email,password:pw});
+if(upRes.error) return toast(upRes.error.message);
+if(!upRes.data.session) toast("تم إنشاء الحساب. افتح الإيميل لتأكيده ثم سجّل الدخول")
+}
  else{const{error}=await sb.auth.signInWithPassword({email,password:pw});if(error)toast(error.message==="Invalid login credentials"?"الإيميل أو الباسورد غير صحيح":error.message)}}
 const logout=()=>sb.auth.signOut();
 async function mkProfile(role){const name=$("n").trim(),phone=$("ph").trim();if(!name||phone.length<8)return toast("اكتب الاسم ورقم هاتف صحيح");

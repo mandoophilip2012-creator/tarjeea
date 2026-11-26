@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -24,7 +24,7 @@ header p{margin:0 0 12px;color:#b9c2cc;font-size:13px}
 .tabs button{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:20px;font:inherit;cursor:pointer}
 .tabs button.on{background:var(--sign);border-color:var(--sign);color:#1b2430;font-weight:700}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
-.card h3{margin:0 0 4px;font-size:16px}
+.card h3{margin:0 0 4px;font-size:16px;color:#1b2430}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .mute{color:var(--mute);font-size:13px}
 label{display:block;font-size:14px;font-weight:700;color:#1b2430;margin:10px 0 3px}
@@ -81,8 +81,19 @@ label{color:#1b2430!important;font-weight:700!important;font-size:14px!important
 .mute{color:#3d4a59!important}
 input,select{background:#fff!important;color:#1b2430!important;border:1.5px solid #cbd2da!important;font-weight:600}
 input::placeholder{color:#7a8794!important}
-.card h3{color:#0f2233!important}
+.card h3{color:#1b2430!important}
 header p{color:#e8eef4!important}
+</style>
+<style>
+:root, :root[data-theme="light"]{--bg:#f4f5f6!important;--card:#fff!important;--ink:#1b2430!important;--mute:#3d4a59!important;--line:#dde1e5!important}
+html,body{background:#f4f5f6!important;color:#1b2430!important}
+.card{background:#fff!important;color:#1b2430!important}
+.card h3{color:#1b2430!important}
+label{color:#1b2430!important}
+.mute{color:#3d4a59!important}
+.tabs button{background:#fff!important;color:#1b2430!important;border:1px solid #dde1e5!important}
+.tabs button.on{background:#f2b705!important;color:#1b2430!important;border-color:#f2b705!important}
+input,select{background:#fff!important;color:#1b2430!important}
 </style>
 </head>
 <body><div id="splash"><div class="splash-logo">🚛</div><div class="splash-title">ترجيعة<span>.</span></div><div class="splash-sub">كل عربية راجعة فاضية<br>هي شحنة رخيصة لعميل</div><div class="splash-road"><i></i></div><div class="splash-dots">● ● ●</div><div style="color:#fff;font-size:13px">جاري التحميل... اضغط للتخطي</div></div><script>const _sp=document.getElementById('splash');_sp.addEventListener('click',()=>_sp.classList.add('hide'));setTimeout(()=>{_sp?.classList.add('hide')},4000)</script>
@@ -155,9 +166,9 @@ return h+(my?`<div class="save" style="margin-top:8px">قدّمت عرض بـ ${
 if(!mine)return h+"</div>";
 const m=data.trips.filter(t=>t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
 return h+"</div>"+(m.length?`<div class="mute" style="margin:-4px 0 8px">ترجيعات ورحلات مناسبة لشحنتك:</div>`+m.map(t=>tripCard(t,s)).join(""):"")+(bids.length?`<div class="card"><b>عروض الناقلين</b>`+bids.slice().sort((a,b)=>a.price-b.price).map(b=>`<div class="bid row"><div>${esc(cn(b.carrier_id))}<div class="mute">تقييم ${data.names[b.carrier_id]?.rating??"-"}</div></div><div><span class="price">${money(b.price)}</span> <button class="btn sign" onclick="accept('${b.id}')">اقبل</button></div></div>`).join("")+"</div>":(m.length?"":`<div class="card empty">لا توجد ترجيعات على هذا الخط الآن. ستصلك عروض الناقلين هنا.</div>`))}
-function authView(){return`<div class="card"><h3>${mode=="in"?"تسجيل الدخول":"إنشاء حساب جديد"}</h3><label for="em">الإيميل</label><input id="em" type="email" autocomplete="email"><label for="pw">الباسورد</label><input id="pw" type="password" autocomplete="${mode=="in"?"current-password":"new-password"}">
+function authView(){return`<div class="card"><h3 style="color:#1b2430">${mode=="in"?"تسجيل الدخول":"إنشاء حساب جديد"}</h3><label for="em">الإيميل</label><input id="em" type="email" autocomplete="email"><label for="pw">الباسورد</label><input id="pw" type="password" autocomplete="${mode=="in"?"current-password":"new-password"}">
 <button class="btn sign full" onclick="auth('${mode=="in"?"in":"up"}')">${mode=="in"?"دخول":"إنشاء الحساب"}</button><p class="mute" style="text-align:center"><a href="#" onclick="mode='${mode=="in"?"up":"in"}';render();return false">${mode=="in"?"معنديش حساب، أسجّل":"عندي حساب، أدخل"}</a></p></div>`}
-function onboard(){return`<div class="card"><h3>أهلًا بك في ترجيعة</h3><label for="n">الاسم</label><input id="n"><label for="ph">رقم الهاتف</label><input id="ph" inputmode="tel">
+function onboard(){return`<div class="card"><h3 style="color:#1b2430">أهلًا بك في ترجيعة</h3><label for="n">الاسم</label><input id="n"><label for="ph">رقم الهاتف</label><input id="ph" inputmode="tel">
 <div class="row" style="margin-top:14px"><button class="btn sign" style="flex:1" onclick="mkProfile('customer')">سجّل كعميل</button><button class="btn" style="flex:1" onclick="document.getElementById('kx').hidden=false">سجّل كناقل</button></div>
 <div id="kx" hidden><div class="g2"><div><label for="pl">رقم اللوحة</label><input id="pl"></div><div><label for="cp">السعة (م³)</label><input id="cp" type="number" value="40"></div></div><button class="btn sign full" onclick="mkProfile('carrier')">أرسل للتوثيق</button><p class="mute">هنتصل بيك على رقمك ونراجع بياناتك قبل ما تقدر تنشر رحلات.</p></div></div>`}
 function render(){const A=document.getElementById("app"),T=document.getElementById("tabs"),R=document.getElementById("roles");T.innerHTML="";R.innerHTML="";
@@ -169,7 +180,7 @@ const TT=me.role=="customer"?[["new","اطلب شحنة"],["mine","شحناتي"
 if(!TT.some(x=>x[0]==tab))tab=TT[0][0];
 T.innerHTML=TT.map(([k,t])=>`<button class="${tab==k?"on":""}" onclick="tab='${k}';render()">${t}</button>`).join("")+`<button onclick="refresh()">تحديث</button>`;
 let h="";
-if(tab=="new")h=`<div class="card"><h3>إيه اللي عايز تشحنه؟</h3><div class="g2"><div><label for="f">من</label><select id="f">${opts(CITIES,"القاهرة")}</select></div><div><label for="t">إلى</label><select id="t">${opts(CITIES,"الغردقة")}</select></div></div><label for="c">نوع البضاعة</label><input id="c" placeholder="مثال: كراتين أجهزة كهربائية"><div class="g2"><div><label for="w">الوزن (طن)</label><input id="w" type="number" inputmode="decimal" value="2"></div><div><label for="v">الحجم (م³)</label><input id="v" type="number" inputmode="decimal" value="8"></div></div><button class="btn sign full" onclick="newShip()">انشر الشحنة واعرف الأسعار</button></div>`;
+if(tab=="new")h=`<div class="card"><h3 style="color:#1b2430">إيه اللي عايز تشحنه؟</h3><div class="g2"><div><label for="f">من</label><select id="f">${opts(CITIES,"القاهرة")}</select></div><div><label for="t">إلى</label><select id="t">${opts(CITIES,"الغردقة")}</select></div></div><label for="c">نوع البضاعة</label><input id="c" placeholder="مثال: كراتين أجهزة كهربائية"><div class="g2"><div><label for="w">الوزن (طن)</label><input id="w" type="number" inputmode="decimal" value="2"></div><div><label for="v">الحجم (م³)</label><input id="v" type="number" inputmode="decimal" value="8"></div></div><button class="btn sign full" onclick="newShip()">انشر الشحنة واعرف الأسعار</button></div>`;
 if(tab=="mine"){const a=data.ships.filter(s=>s.customer_id==uid);h=a.length?a.map(s=>shipCard(s,0)).join(""):`<div class="empty">لسه ما نشرتش شحنات. ابدأ من «اطلب شحنة».</div>`}
 if(tab=="trips")h=data.trips.length?data.trips.map(t=>tripCard(t,null)).join(""):`<div class="empty">مفيش رحلات منشورة حاليًا.</div>`;
 if(tab=="post")h=`<div class="card"><h3>نشر رحلة</h3><div class="g2"><div><label for="tf">من</label><select id="tf">${opts(CITIES,"الغردقة")}</select></div><div><label for="tt">إلى</label><select id="tt">${opts(CITIES,"القاهرة")}</select></div></div><div class="g2"><div><label for="td">موعد التحرك</label><select id="td">${opts(DATES)}</select></div><div><label for="tc">سعة العربية (م³)</label><input id="tc" type="number" value="${me.capacity_m3||40}"></div></div><label for="tr">نوع الرحلة</label><select id="tr"><option value="1">ترجيعة (راجع فاضي، سعر أقل)</option><option value="0">رحلة عادية</option></select><button class="btn sign full" onclick="postTrip()">انشر الرحلة</button></div>`;

@@ -100,7 +100,6 @@ function blockedView(){
  return `<div class="blocked"><h3>⛔ تم إيقاف حسابك مؤقتاً</h3><p><b>السبب: لم ترسل العمولة</b></p>${amt>0?`<p>عليك عمولة: <b>${money(amt)}</b></p>`:`<p>عليك عمولة مستحقة لم يتم إرسالها</p>`}<p>ابعت العمولة على <b>${PAY_NUMBER}</b> - ${PAY_METHOD}</p><p>وبعدها ابعت سكرين شوت على الواتساب على نفس الرقم عشان نفك الإيقاف</p><button class="btn sign full" onclick="requestUnblock()">بعت العمولة - اطلب فك الإيقاف</button><p class="mute" style="margin-top:8px">الخدمات المتوقفة: نشر رحلة جديدة - تقديم عروض - مشاهدة طلبات العملاء</p></div>`;
 }
 function requestUnblock(){ toast("تم إرسال طلب فك الإيقاف. هنراجع التحويل ونفك حسابك."); }
-function markUnpaid(amount){ try{ localStorage.setItem('unpaid-'+uid, String(amount)); localStorage.setItem('blocked-'+uid,'1'); }catch(e){} render(); }
 const ok=async(p,msg)=>{const r=await p;if(r.error){toast(r.error.message);return false}if(msg)toast(msg);return true};
 sb.auth.onAuthStateChange((_e,ses)=>{uid=ses?.user?.id||null;setTimeout(boot,0)});
 async function boot(){if(!uid){me=null;return render()}
@@ -138,14 +137,17 @@ async function postTrip(){ if(isBlocked()){ render(); return toast("حسابك �
 async function verify(id){if(await ok(sb.rpc("verify_carrier",{p_id:id}),"تم توثيق الناقل")){await load();render()}}
 function meter(t){let h='<div class="truck" aria-hidden="true">';for(let i=0;i<20;i++)h+=`<i class="${i<Math.round(t.used_m3/t.capacity_m3*20)?"f":""}"></i>`;return h+"</div>"}
 function payBox(total){return `<div class="paybox">💰 الدفع كاش عند الاستلام<br>العميل يدفع <b>${money(total)}</b> للسواق كاش<br>عمولة ترجيعة (10%): <b>${money(commOf(total))}</b><br>الصافي للسواق: <b>${money(netOf(total))}</b><br>ابعت العمولة على <b>${PAY_NUMBER}</b> - ${PAY_METHOD}<br><span class="mute">وابعت سكرين شوت على الواتساب</span></div>`}
-function tripCard(t,s){const free=t.capacity_m3-t.used_m3,full=base(t.from_city,t.to_city),now=cur(t),pct=Math.round((1-now/full)*100);
-const total=s?Math.round(now*s.volume_m3):0;
-return`<div class="card"><div class="row"><h3>${L(t.from_city,t.to_city)}</h3>${t.is_return?'<span class="tag ret">ترجيعة</span>':'<span class="tag">رحلة عادية</span>'}</div>
+function customerPayBox(total){return `<div class="note" style="margin-top:8px">💰 الدفع كاش عند الاستلام.<br>هتدفع <b>${money(total)}</b> للسواق لما تستلم شحنتك.</div>`}
+function tripCard(t,s){
+ const free=t.capacity_m3-t.used_m3,full=base(t.from_city,t.to_city),now=cur(t),pct=Math.round((1-now/full)*100);
+ const total=s?Math.round(now*s.volume_m3):0;
+ const showComm = (me && me.role=="carrier");
+ return`<div class="card"><div class="row"><h3>${L(t.from_city,t.to_city)}</h3>${t.is_return?'<span class="tag ret">ترجيعة</span>':'<span class="tag">رحلة عادية</span>'}</div>
 <div class="mute">${esc(cn(t.carrier_id))} · ${esc(t.depart_label||"")} · ${km(t.from_city,t.to_city)} كم</div>${meter(t)}
 <div class="row mute"><span>متبقي ${free} م³ من ${t.capacity_m3} م³</span><span>كل ما العربية تمتلي السعر ينزل</span></div>
 <div class="row" style="margin-top:8px"><div><span class="price">${money(now)}</span> <span class="mute">/م³</span><div class="save">أرخص ${pct}% من المعتاد (${money(full)})</div></div>
 ${s?`<button class="btn sign" onclick="book('${s.id}','${t.id}')">احجز ${s.volume_m3} م³ بـ ${money(total)}</button>`:""}</div>
-${s?`<div class="mute" style="margin-top:8px">الدفع كاش عند الاستلام - عمولة ترجيعة 10% = ${money(commOf(total))} - الصافي ليك ${money(netOf(total))}</div>`:""}</div>`}
+${s && showComm ? `<div class="mute" style="margin-top:8px">الدفع كاش عند الاستلام - عمولة ترجيعة 10% = ${money(commOf(total))} - الصافي ليك ${money(netOf(total))}</div>` : (s ? `<div class="mute" style="margin-top:8px">الدفع كاش عند الاستلام</div>` : "")}</div>`}
 async function payFor(sid, amount){
   try{
     toast("بيجهز الدفع...");
@@ -159,14 +161,20 @@ async function payFor(sid, amount){
     toast("اتفتح الدفع - جرّب بكارت الاختبار 5123456789012346");
   }catch(e){ toast("مشكلة في الدفع: "+(e.message||e)); }
 }
-function shipCard(s,k){const bids=s.bids||[],mine=s.customer_id==uid;
-let h=`<div class="card"><div class="row"><h3>${L(s.from_city,s.to_city)}</h3><span class="tag ${s.status=="delivered"?"ok":""}">${SL[s.status]}</span></div><div class="mute">${esc(s.cargo)} · ${s.weight_t} طن · ${s.volume_m3} م³ · ${km(s.from_city,s.to_city)} كم</div>`;
-if(s.status!="open")return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div><div class="note" style="margin-top:8px">الدفع كاش عند الاستلام.</div>${payBox(s.price||0)}<div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div></div>`;
-if(k){const my=bids.find(b=>b.carrier_id==uid),sug=Math.round(s.volume_m3*base(s.from_city,s.to_city)*.9),mt=data.trips.filter(t=>t.carrier_id==uid&&t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
-return h+(my?`<div class="save" style="margin-top:8px">قدّمت عرض بـ ${money(my.price)}</div>`:`<label for="b${s.id}">عرضك (المقترح ${money(sug)})</label><div class="row"><input id="b${s.id}" type="number" inputmode="numeric" value="${sug}" style="flex:1"><button class="btn sign" onclick="bid('${s.id}')">قدّم عرض</button></div>`)+(mt.length?`<button class="btn full" onclick="book('${s.id}','${mt[0].id}')">ضمّها لرحلتك بـ ${money(cur(mt[0])*s.volume_m3)}</button>`:"")+"</div>"}
-if(!mine)return h+"</div>";
-const m=data.trips.filter(t=>t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
-return h+"</div>"+(m.length?`<div class="mute" style="margin:-4px 0 8px">ترجيعات ورحلات مناسبة لشحنتك:</div>`+m.map(t=>tripCard(t,s)).join(""):"")+(bids.length?`<div class="card"><b>عروض الناقلين</b>`+bids.slice().sort((a,b)=>a.price-b.price).map(b=>`<div class="bid row"><div>${esc(cn(b.carrier_id))}<div class="mute">تقييم ${data.names[b.carrier_id]?.rating??"-"}</div></div><div><span class="price">${money(b.price)}</span> <button class="btn sign" onclick="accept('${b.id}')">اقبل</button></div></div>`).join("")+"</div>":(m.length?"":`<div class="card empty">لا توجد ترجيعات على هذا الخط الآن. ستصلك عروض الناقلين هنا.</div>`))}
+function shipCard(s,k){
+ const bids=s.bids||[],mine=s.customer_id==uid;
+ const isCarrierView = (me && me.role=="carrier") || (me && me.role=="admin");
+ let h=`<div class="card"><div class="row"><h3>${L(s.from_city,s.to_city)}</h3><span class="tag ${s.status=="delivered"?"ok":""}">${SL[s.status]}</span></div><div class="mute">${esc(s.cargo)} · ${s.weight_t} طن · ${s.volume_m3} م³ · ${km(s.from_city,s.to_city)} كم</div>`;
+ if(s.status!="open"){
+   let payHtml = "";
+   if(isCarrierView){ payHtml = payBox(s.price||0); } else { payHtml = customerPayBox(s.price||0); }
+   return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div>${payHtml}<div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div></div>`;
+ }
+ if(k){const my=bids.find(b=>b.carrier_id==uid),sug=Math.round(s.volume_m3*base(s.from_city,s.to_city)*.9),mt=data.trips.filter(t=>t.carrier_id==uid&&t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
+ return h+(my?`<div class="save" style="margin-top:8px">قدّمت عرض بـ ${money(my.price)}</div>`:`<label for="b${s.id}">عرضك (المقترح ${money(sug)})</label><div class="row"><input id="b${s.id}" type="number" inputmode="numeric" value="${sug}" style="flex:1"><button class="btn sign" onclick="bid('${s.id}')">قدّم عرض</button></div>`)+(mt.length?`<button class="btn full" onclick="book('${s.id}','${mt[0].id}')">ضمّها لرحلتك بـ ${money(cur(mt[0])*s.volume_m3)}</button>`:"")+"</div>"}
+ if(!mine)return h+"</div>";
+ const m=data.trips.filter(t=>t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
+ return h+"</div>"+(m.length?`<div class="mute" style="margin:-4px 0 8px">ترجيعات ورحلات مناسبة لشحنتك:</div>`+m.map(t=>tripCard(t,s)).join(""):"")+(bids.length?`<div class="card"><b>عروض الناقلين</b>`+bids.slice().sort((a,b)=>a.price-b.price).map(b=>`<div class="bid row"><div>${esc(cn(b.carrier_id))}<div class="mute">تقييم ${data.names[b.carrier_id]?.rating??"-"}</div></div><div><span class="price">${money(b.price)}</span> <button class="btn sign" onclick="accept('${b.id}')">اقبل</button></div></div>`).join("")+"</div>":(m.length?"":`<div class="card empty">لا توجد ترجيعات على هذا الخط الآن. ستصلك عروض الناقلين هنا.</div>`))}
 function authView(){return`<div class="card"><h3 style="color:#1b2430">${mode=="in"?"تسجيل الدخول":"إنشاء حساب جديد"}</h3><label for="em">الإيميل</label><input id="em" type="email" autocomplete="email"><label for="pw">الباسورد</label><input id="pw" type="password" autocomplete="${mode=="in"?"current-password":"new-password"}">
 <button class="btn sign full" onclick="auth('${mode=="in"?"in":"up"}')">${mode=="in"?"دخول":"إنشاء الحساب"}</button><p class="mute" style="text-align:center"><a href="#" onclick="mode='${mode=="in"?"up":"in"}';render();return false">${mode=="in"?"معنديش حساب، أسجّل":"عندي حساب، أدخل"}</a></p></div>`}
 function onboard(){return`<div class="card"><h3 style="color:#1b2430">أهلًا بك في ترجيعة</h3><label for="n">الاسم</label><input id="n"><label for="ph">رقم الهاتف</label><input id="ph" inputmode="tel">
@@ -178,7 +186,6 @@ R.innerHTML=`<button class="on" onclick="logout()">${me?esc(me.name):"حسابي
 if(!me){A.innerHTML=onboard();return}
 if(me.role=="carrier"&&!me.verified){A.innerHTML=`<div class="card empty">طلبك قيد المراجعة. هنفعّل حسابك بعد التواصل معاك.</div>`;return}
 if(me.role=="carrier" && isBlocked()){
-  const TT2=[["my","رحلاتي وشحناتي"]];
   tab="my";
   T.innerHTML=`<button class="on">رحلاتي وشحناتي</button>`;
   A.innerHTML=blockedView()+`<div class="card"><h3>شحنات عليك</h3><div class="mute">مش هتقدر تنشر رحلة جديدة لحد ما تبعت العمولة</div></div>`;

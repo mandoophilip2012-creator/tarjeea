@@ -105,9 +105,20 @@ return`<div class="card"><div class="row"><h3>${L(t.from_city,t.to_city)}</h3>${
 <div class="row mute"><span>متبقي ${free} م³ من ${t.capacity_m3} م³</span><span>كل ما العربية تمتلي السعر ينزل</span></div>
 <div class="row" style="margin-top:8px"><div><span class="price">${money(now)}</span> <span class="mute">/م³</span><div class="save">أرخص ${pct}% من المعتاد (${money(full)})</div></div>
 ${s?`<button class="btn sign" onclick="book('${s.id}','${t.id}')">احجز ${s.volume_m3} م³ بـ ${money(now*s.volume_m3)}</button>`:""}</div></div>`}
-function shipCard(s,k){const bids=s.bids||[],mine=s.customer_id==uid;
+async function payFor(sid, amount){
+  try{
+    toast("بيجهز الدفع...");
+    const {data, error} = await sb.functions.invoke('paymob-create', {body:{amount: amount, shipment_id: sid, customer_name: me?.name||'عميل', customer_email: (await sb.auth.getUser()).data.user?.email||'test@test.com', customer_phone: me?.phone||'01000000000'}});
+    if(error) throw error;
+    const pin = String(Math.floor(1000 + Math.random()*9000));
+    localStorage.setItem('pin-'+sid, pin);
+    document.getElementById('pin-'+sid).innerHTML = 'كود التسليم بتاعك: <b style="font-size:20px">'+pin+'</b> - اديه للسواق لما يستلم الشحنة.';
+    window.open('https://accept.paymob.com/unifiedcheckout/?publicKey='+encodeURIComponent(data.public_key)+'&clientSecret='+encodeURIComponent(data.client_secret), '_blank');
+    toast("اتفتح الدفع - جرّب بكارت الاختبار 5123456789012346");
+  }catch(e){ toast("مشكلة في الدفع: "+(e.message||e)); }
+}function shipCard(s,k){const bids=s.bids||[],mine=s.customer_id==uid;
 let h=`<div class="card"><div class="row"><h3>${L(s.from_city,s.to_city)}</h3><span class="tag ${s.status=="delivered"?"ok":""}">${SL[s.status]}</span></div><div class="mute">${esc(s.cargo)} · ${s.weight_t} طن · ${s.volume_m3} م³ · ${km(s.from_city,s.to_city)} كم</div>`;
-if(s.status!="open")return h+`<div class="row" style="margin-top:8px"><span class="mute">الناقل: ${esc(cn(s.carrier_id))}</span><span class="price">${money(s.price)}</span></div><div class="note" style="margin-top:8px">الدفع وكود التسليم هيتفعّلوا في الخطوة الجاية.</div></div>`;
+الدفع محجوز عند ترجيعة لحد التسليم.</div><div class="row" style="margin-top:8px"><button class="btn sign" style="flex:1" onclick="payFor('${s.id}',${s.price||0})">ادفع ${money(s.price||0)} (تجريبي - Paymob)</button></div><div id="pin-${s.id}" class="mute" style="margin-top:6px"></div>
 if(k){const my=bids.find(b=>b.carrier_id==uid),sug=Math.round(s.volume_m3*base(s.from_city,s.to_city)*.9),mt=data.trips.filter(t=>t.carrier_id==uid&&t.from_city==s.from_city&&t.to_city==s.to_city&&t.capacity_m3-t.used_m3>=s.volume_m3);
 return h+(my?`<div class="save" style="margin-top:8px">قدّمت عرض بـ ${money(my.price)}</div>`:`<label for="b${s.id}">عرضك (المقترح ${money(sug)})</label><div class="row"><input id="b${s.id}" type="number" inputmode="numeric" value="${sug}" style="flex:1"><button class="btn sign" onclick="bid('${s.id}')">قدّم عرض</button></div>`)+(mt.length?`<button class="btn full" onclick="book('${s.id}','${mt[0].id}')">ضمّها لرحلتك بـ ${money(cur(mt[0])*s.volume_m3)}</button>`:"")+"</div>"}
 if(!mine)return h+"</div>";

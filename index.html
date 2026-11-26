@@ -22,8 +22,6 @@
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1b2430">
-<link rel="manifest" href="data:application/json,[STRIPPED]>
 <title>ترجيعة – منصة الشحن بالحمولة المشتركة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&amp;display=swap" rel="stylesheet">
 <style>
@@ -75,10 +73,29 @@ select,input{width:100%;padding:10px;border:1px solid var(--line);border-radius:
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 .note{background:var(--cell);border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px}.pin{font-size:24px}</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+
+<style>
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0f2233 0%,#1b3a56 55%,#f2b705 130%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .6s, visibility .6s}
+#splash.hide{opacity:0;visibility:hidden}
+.splash-logo{width:120px;height:120px;background:#fff;border-radius:32px;display:flex;align-items:center;justify-content:center;font-size:64px;box-shadow:0 20px 50px rgba(0,0,0,.35);animation:bounceIn 1s ease, floatY 2s ease-in-out 1s infinite}
+@keyframes bounceIn{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.splash-title{color:#fff;font-size:38px;font-weight:800;letter-spacing:1px}
+.splash-title span{color:#f2b705}
+.splash-sub{color:#cfe0ee;font-size:15px}
+.splash-road{width:220px;height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden}
+.splash-road i{display:block;height:100%;width:40%;background:#f2b705;border-radius:99px;animation:drive 1.2s ease-in-out infinite}
+@keyframes drive{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+.card{animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.btn{transition:transform .15s, box-shadow .15s}
+.btn:active{transform:scale(.97)}
+header{background:linear-gradient(135deg,#0f2233,#1b3a56)!important}
+</style>
 </head>
-<body>
+<body><div id="splash" class="hide"><div class="splash-logo">🚛</div><div class="splash-title">ترجيعة<span>.</span></div><div class="splash-sub">كل عربية راجعة فاضية هي شحنة رخيصة</div><div class="splash-road"><i></i></div><div style="color:#fff;font-size:13px">جاري التحميل...</div></div><script>setTimeout(()=>{document.getElementById('splash')?.classList.add('hide')},2200)</script>
 <div class="wrap">
-<header><h1>ترجيعة<span>.</span></h1><p>كل عربية راجعة فاضية هي شحنة رخيصة لعميل</p><div class="roles" id="roles"></div></header>
+<header><h1 style="display:flex;align-items:center;gap:10px"><span style="background:#f2b705;width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px">🚛</span> ترجيعة<span>.</span></h1><p>كل عربية راجعة فاضية هي شحنة رخيصة لعميل</p><div class="roles" id="roles"></div></header>
 <div class="tabs" id="tabs"></div>
 <main id="app"><div class="empty">جاري التحميل…</div></main>
 </div>
